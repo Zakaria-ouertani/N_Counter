@@ -3,50 +3,42 @@ const { token } = require("./config.json");
 const fs = require('node:fs');
 const path = require('node:path');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
-client.once(Events.ClientReady, c => {
-  console.log(`Logged in as ${c.user.tag}`);
-});
 
 
 client.commands = new Collection();
 
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath)
+// Get Commands from subfolders in the ./commands dir
+const commandFoldersPath = path.join(__dirname, 'commands');
+const commandFolders = fs.readdirSync(commandFoldersPath)
 
 for (const folder of commandFolders) {
-  const commandsPath = path.join(foldersPath, folder);
+  const commandsPath = path.join(commandFoldersPath, folder);
   const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
   for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    console.log(filePath)
-    const command = require(filePath);
+    const commandFilePath = path.join(commandsPath, file);
+    const command = require(commandFilePath);
     if ('data' in command && 'execute' in command) {
       client.commands.set(command.data.name, command);
     } else {
-      console.log(`[WARNING] the command at ${filePath} is missing required 'data' or 'execute' prop.`);
+      console.log(`[WARNING] the command at ${commandFilePath} is missing required 'data' or 'execute' prop.`);
     }
   }
 }
 
-client.login(token);
-client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isChatInputCommand) return;
-  console.log(interaction);
-  if (!commands) {
-    console.error(`No command matching ${interaction.commandName} was found.`)
-    try {
-      await command.execute(interaction)
-    }
-    catch (error) {
-      console.error(error)
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ content: 'Error while exec' })
-      }
-      else {
-        await interaction.reply({ content: 'Error while exec' })
-      }
-    }
+// Get events from the ./events folder
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+for (file of eventFiles) {
+  const eventFilePath = path.join(eventsPath, file);
+  const event = require(eventFilePath);
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args))
   }
-});
+}
+
+
+client.login(token);
