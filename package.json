@@ -1,0 +1,11 @@
+{
+  "name": "niggacount",
+  "version": "1.0.0",
+  "description": "NIGGGGGGAAAAAAAAA",
+  "main": "index.js",
+  "author": "zrb3",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  }
+}
