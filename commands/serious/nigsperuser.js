@@ -8,6 +8,10 @@ module.exports = {
     .setName("nigsperuser")
     .setDescription("How many times each user said the thing."),
   async execute(interaction) {
+    async function countNigs() {
+      messages = await interaction.guild.messages.fetch()
+      console.log(typeof messages)
+    }
     console.log("yasou3")
     try {
       message = ""
