@@ -1,26 +1,26 @@
 const { SlashCommandBuilder } = require("discord.js")
 const { guildId } = require.main.require("./config.json")
-
-
+const { readFile } = require('node:fs/promises')
+const path = require('node:path')
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("nigsperuser")
     .setDescription("How many times each user said the thing."),
   async execute(interaction) {
-    async function countNigs() {
-      messages = await interaction.guild.messages.fetch()
-      console.log(typeof messages)
-    }
-    console.log("yasou3")
     try {
-      message = ""
-      const guild = await interaction.client.guilds.fetch(guildId);
-      const members = await guild.members.fetch()
-      members.forEach((member) => {
-        message += `${member.user.username} did the deed n times\n`
-      });
-      await interaction.reply(message)
+      let message = ""
+      const membersJsonPath = path.join(__dirname, '../../members.json');
+      const membersJson = JSON.parse(await readFile(membersJsonPath));
+
+      for (member of membersJson) {
+        let user = await interaction.client.users.fetch(member.id);
+        let username = user.username;
+        let nigs = member.nigs;
+        message += `${username} did the deed ${nigs} ${nigs == 1 ? 'time' : 'times'}.\n`;
+      }
+
+      interaction.reply(message)
     } catch (error) {
       console.log(error)
     }

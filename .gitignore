@@ -1,6 +1,6 @@
 # configs
 config.json
-
+members.json
 # Logs
 logs
 *.log

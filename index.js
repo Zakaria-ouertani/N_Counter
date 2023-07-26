@@ -1,9 +1,16 @@
-const { Client, Events, GatewayIntentBits, Collection } = require("discord.js");
+const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const { token } = require("./config.json");
 const fs = require('node:fs');
 const path = require('node:path');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
 
 
 
@@ -40,5 +47,8 @@ for (file of eventFiles) {
   }
 }
 
+// process.on('SIGINT', () => {
+//   console.log("ssssssssssIUUUUUUUUUUUUUUUUUUUU")
+// });
 
 client.login(token);
